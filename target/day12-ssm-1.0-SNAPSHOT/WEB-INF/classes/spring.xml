@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.alibaba.com/schema/stat http://www.alibaba.com/schema/stat.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!--扫描包-->
+    <context:component-scan base-package="com.offcn">
+        <!--不扫描controller注解-->
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+    <!--数据源-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+        <property name="url" value="jdbc:mysql:///mybatis?characterEncoding=utf8"></property>
+        <property name="username" value="root"></property>
+        <property name="password" value="root"></property>
+    </bean>
+
+    <!--事务管理对象-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+    <!--事务注解驱动-->
+    <tx:annotation-driven transaction-manager="transactionManager"></tx:annotation-driven>
+
+    <!--mybtis整合-->
+    <!--工厂-->
+    <bean class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--环境-->
+        <property name="dataSource" ref="dataSource"></property>
+        <!--别名-->
+        <property name="typeAliasesPackage" value="com.offcn.pojo"></property>
+        <!--映射文件导入-->
+        <property name="mapperLocations" value="classpath:mappers/*.xml"></property>
+        <!--核心文件加载-->
+        <property name="configLocation" value="classpath:mybatis.xml"></property>
+
+    </bean>
+
+    <!--代理对象-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--指定持久层包，由框架到其中扫描接口，创建持久层代理对象，并保存到容器-->
+        <property name="basePackage" value="com.offcn.dao"></property>
+    </bean>
+
+</beans>
